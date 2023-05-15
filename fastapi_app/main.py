@@ -6,7 +6,7 @@ from typing import Optional
 
 import httpx
 import uvicorn
-from fastapi import FastAPI, Response
+from fastapi import FastAPI, Response, Request
 from opentelemetry import trace
 from opentelemetry.exporter.jaeger.proto.grpc import \
     JaegerExporter as GrpcJaegerExporter
@@ -81,6 +81,13 @@ def setting_jaeger(app: ASGIApp, app_name: str, log_correlation: bool = True) ->
 
 # Setting jaeger exporter
 setting_jaeger(app, APP_NAME)
+
+# logger middleware
+@app.middleware("http")
+async def logger(req: Request, call_next):
+    logging.info(f"{req.method} {req.url} {req.headers}")
+    res = await call_next(req)
+    return res
 
 
 @app.get("/")
