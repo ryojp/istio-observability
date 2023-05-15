@@ -1,0 +1,43 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  namespace: demo
+  name: demo-gateway
+spec:
+  selector:
+    istio: ingressgateway # use istio default controller
+  servers:
+  - port:
+      ## Uncomment below to use HTTP
+      number: 80
+      name: http
+      protocol: HTTP
+      ## Uncomment below to use HTTPS
+      # number: 443
+      # name: https
+      # protocol: HTTPS
+    ## Comment `tls` section below when not using HTTPS
+    # tls:
+    #   mode: SIMPLE
+    #   credentialName: demo-ingressgateway-cert
+    hosts:
+    # - demo.example.com
+    - '*'
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  namespace: demo
+  name: app-a-virtualservice
+spec:
+  hosts:
+    # - demo.example.com
+    - '*'
+  gateways:
+    - demo-gateway
+  http:
+    - route:
+        - destination:
+            host: app-a.demo.svc.cluster.local
+            port:
+              number: 8000

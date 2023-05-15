@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: demo
+  name: app-a-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app-a
+  template:
+    metadata:
+      labels:
+        app: app-a
+    spec:
+      containers:
+        - name: app-a
+          image: localhost:5000/fastapi_app
+          ports:
+            - containerPort: 8000
+          resources:
+            limits:
+              cpu: 500m
+              memory: 700Mi
+            requests:
+              cpu: 300m
+              memory: 500Mi
+          env:
+            - name: PORT
+              value: "8000"
+            - name: APP_NAME
+              value: app-a
+            - name: MODE
+              value: grpc
+            - name: TARGET_ONE_HOST
+              value: app-a.demo.svc.cluster.local
+            - name: TARGET_TWO_HOST
+              value: app-a.demo.svc.cluster.local
+            - name: COLLECTOR_ENDPOINT_GRPC_ENDPOINT
+              value: grpc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: demo
+  name: app-a
+spec:
+  type: ClusterIP
+  selector:
+    app: app-a
+  ports:
+    - port: 8000
+      targetPort: 8000
