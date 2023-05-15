@@ -2,19 +2,19 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   namespace: demo
-  name: app-a-deployment
+  name: app-b-deployment
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: app-a
+      app: app-b
   template:
     metadata:
       labels:
-        app: app-a
+        app: app-b
     spec:
       containers:
-        - name: app-a
+        - name: app-b
           image: localhost:5000/fastapi_app
           ports:
             - containerPort: 8000
@@ -29,21 +29,25 @@ spec:
             - name: PORT
               value: "8000"
             - name: APP_NAME
-              value: app-a
+              value: app-b
             - name: MODE
-              value: grpc
-            - name: COLLECTOR_ENDPOINT_GRPC_ENDPOINT
-              value: jaeger-collector.istio-system.svc.cluster.local:14250
+              value: thrift-collector
+            # - name: TARGET_ONE_HOST
+            #   value: app-a.demo.svc.cluster.local
+            # - name: TARGET_TWO_HOST
+            #   value: app-b.demo.svc.cluster.local
+            - name: COLLECTOR_THRIFT_URL
+              value: http://jaeger-collector.istio-system.svc.cluster.local:14268
 ---
 apiVersion: v1
 kind: Service
 metadata:
   namespace: demo
-  name: app-a
+  name: app-b
 spec:
   type: ClusterIP
   selector:
-    app: app-a
+    app: app-b
   ports:
     - port: 8000
       targetPort: 8000

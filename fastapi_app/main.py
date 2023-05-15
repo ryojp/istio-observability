@@ -20,26 +20,28 @@ from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from starlette.types import ASGIApp
 
+JAEGER_HOST = 'jaeger-collector.istio-system.svc.cluster.local'
+
 APP_NAME = os.environ.get("APP_NAME", "app")
-EXPOSE_PORT = os.environ.get("PORT", 8000)
+EXPOSE_PORT = int(os.environ.get("PORT", "8000"))
 
 # grpc, thrift-collector,  thrift-agent
 MODE = os.environ.get("MODE", "grpc")
 
 # with grpc through jaeger collector
 COLLECTOR_ENDPOINT_GRPC_ENDPOINT = os.environ.get(
-    "COLLECTOR_ENDPOINT_GRPC_ENDPOINT", "jaeger-collector:14250")
+    "COLLECTOR_ENDPOINT_GRPC_ENDPOINT", f"{JAEGER_HOST}:14250")
 
 # with thrift through jaeger collector
 COLLECTOR_THRIFT_URL = os.environ.get(
-    "COLLECTOR_THRIFT_URL", "http://jaeger-collector:14268")
+    "COLLECTOR_THRIFT_URL", f"http://{JAEGER_HOST}:14268")
 
 # with thrift through jaeger agent
 AGENT_HOST_NAME = os.environ.get("AGENT_HOST_NAME", "jaeger-agent")
 AGENT_PORT = int(os.environ.get("AGENT_PORT", 6831))
 
-TARGET_ONE_HOST = os.environ.get("TARGET_ONE_HOST", "app-b")
-TARGET_TWO_HOST = os.environ.get("TARGET_TWO_HOST", "app-c")
+TARGET_ONE_HOST = os.environ.get("TARGET_ONE_HOST", "app-b.demo.svc.cluster.local")
+TARGET_TWO_HOST = os.environ.get("TARGET_TWO_HOST", "app-c.demo.svc.cluster.local")
 
 app = FastAPI()
 
@@ -78,25 +80,25 @@ def setting_jaeger(app: ASGIApp, app_name: str, log_correlation: bool = True) ->
 
 
 # Setting jaeger exporter
-# setting_jaeger(app, APP_NAME)
+setting_jaeger(app, APP_NAME)
 
 
 @app.get("/")
 async def read_root():
-    logging.error("Hello World")
+    logging.debug("Hello World")
     return {"Hello": "World"}
 
 
 @app.get("/items/{item_id}")
 async def read_item(item_id: int, q: Optional[str] = None):
-    logging.error("items")
+    logging.debug("items")
     return {"item_id": item_id, "q": q}
 
 
 @app.get("/io_task")
 async def io_task():
-    time.sleep(1)
-    logging.error("io task")
+    time.sleep(0.01)
+    logging.debug("io task")
     return "IO bound task finish!"
 
 
@@ -104,27 +106,27 @@ async def io_task():
 async def cpu_task():
     for i in range(1000):
         n = i*i*i
-    logging.error("cpu task")
+    logging.debug("cpu task")
     return "CPU bound task finish!"
 
 
 @app.get("/random_status")
 async def random_status(response: Response):
     response.status_code = random.choice([200, 200, 300, 400, 500])
-    logging.error("random status")
+    logging.debug("random status")
     return {"path": "/random_status"}
 
 
 @app.get("/random_sleep")
 async def random_sleep(response: Response):
     time.sleep(random.randint(0, 5))
-    logging.error("random sleep")
+    logging.debug("random sleep")
     return {"path": "/random_sleep"}
 
 
 @app.get("/error_test")
 async def random_sleep(response: Response):
-    logging.error("got error!!!!")
+    logging.debug("got error!!!!")
     raise ValueError("value error")
 
 
@@ -133,7 +135,7 @@ async def chain(response: Response):
 
     headers = {}
     inject(headers)  # inject trace info to header
-    logging.critical(headers)
+    logging.info(headers)
 
     async with httpx.AsyncClient() as client:
         await client.get(f"http://localhost:8000/", headers=headers,)
