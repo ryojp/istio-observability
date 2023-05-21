@@ -47,11 +47,6 @@ curl localhost/chain
 istioctl dashboard jaeger
 ```
 
-## Current Limitations
-
-Somehow Jaeger UI does not correlate requests that (should have) the same correlation ID.
-Now, they are displayed as individual requests, such as those between `app-a` and `app-b`, `app-a` and `app-c`, etc.
-
 
 ## Troubleshooting
 
