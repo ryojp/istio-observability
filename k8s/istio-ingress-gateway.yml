@@ -40,4 +40,4 @@ spec:
         - destination:
             host: app-a.demo.svc.cluster.local
             port:
-              number: 8000
+              number: 80

@@ -1,3 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: demo
+  name: app-a
+spec:
+  type: ClusterIP
+  selector:
+    app: app-a
+  ports:
+    - port: 80
+      targetPort: 80
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -17,7 +30,7 @@ spec:
         - name: app-a
           image: localhost:5000/fastapi_app
           ports:
-            - containerPort: 8000
+            - containerPort: 80
           resources:
             limits:
               cpu: 500m
@@ -27,23 +40,4 @@ spec:
               memory: 500Mi
           env:
             - name: PORT
-              value: "8000"
-            - name: APP_NAME
-              value: app-a
-            - name: MODE
-              value: grpc
-            - name: COLLECTOR_ENDPOINT_GRPC_ENDPOINT
-              value: jaeger-collector.istio-system.svc.cluster.local:14250
----
-apiVersion: v1
-kind: Service
-metadata:
-  namespace: demo
-  name: app-a
-spec:
-  type: ClusterIP
-  selector:
-    app: app-a
-  ports:
-    - port: 8000
-      targetPort: 8000
+              value: "80"
