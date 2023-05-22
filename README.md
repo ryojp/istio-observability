@@ -52,14 +52,14 @@ istioctl dashboard jaeger
 
 ### `curl localhost/chain` returns `404 Not Found` HTML from NGINX
 
-In this case, you are likely to have `NGINX Ingress Controller` deployed on your systme, and it served the `curl` request instead of the `Istio Ingress Gateway`.  
+In this case, you are likely to have `NGINX Ingress Controller` deployed on your system, and it served the `curl` request instead of the `Istio Ingress Gateway`.  
 Please delete your ingress and run again.
 
 For example, if you are using `microk8s`, you can run `microk8s disable ingress`
 
 ### `curl localhost` hangs
 
-Make sure that you can connect to the upstream webp app directly using port-forward:
+Make sure that you can connect to the upstream web app directly using port-forward:
 ```sh
 # On one terminal window
 kubectl -n demo port-forward app-a-deployment-b75df8b88-46gqc 8080:80 # Please change the pod name appropriately
