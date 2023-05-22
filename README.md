@@ -62,7 +62,7 @@ For example, if you are using `microk8s`, you can run `microk8s disable ingress`
 Make sure that you can connect to the upstream webp app directly using port-forward:
 ```sh
 # On one terminal window
-k -n demo port-forward app-a-deployment-b75df8b88-46gqc 8080:80 # Please change the pod name appropriately
+kubectl -n demo port-forward app-a-deployment-b75df8b88-46gqc 8080:80 # Please change the pod name appropriately
 # On another terminal window
 curl localhost:8080
 ```
@@ -77,7 +77,7 @@ kubectl -n istio-system edit svc istio-ingressgateway
 
 Next, get the port number that maps to `80` by:
 ```sh
-$ k -n istio-system get svc istio-ingressgateway
+$ kubectl -n istio-system get svc istio-ingressgateway
 NAME                   TYPE       CLUSTER-IP       EXTERNAL-IP   PORT(S)                                                                      AGE
 istio-ingressgateway   NodePort   10.152.183.198   <none>        15021:32569/TCP,80:30419/TCP,443:32250/TCP,31400:30769/TCP,15443:32302/TCP   66m
 ```

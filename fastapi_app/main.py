@@ -10,22 +10,26 @@ from fastapi import FastAPI, Response, Request
 
 
 PORT = int(os.environ.get("PORT", "8000"))
-TARGET_ONE_ORIGIN = os.environ.get("TARGET_ONE_ORIGIN", "http://app-b.demo.svc.cluster.local")
-TARGET_TWO_ORIGIN = os.environ.get("TARGET_TWO_ORIGIN", "http://app-c.demo.svc.cluster.local")
+TARGET_ONE_ORIGIN = os.environ.get(
+    "TARGET_ONE_ORIGIN", "http://app-b.demo.svc.cluster.local"
+)
+TARGET_TWO_ORIGIN = os.environ.get(
+    "TARGET_TWO_ORIGIN", "http://app-c.demo.svc.cluster.local"
+)
 
 app = FastAPI()
 
 
-def getForwardHeaders(request: Request) -> dict[str,str]:
+def getForwardHeaders(request: Request) -> dict[str, str]:
     """Returns a header dict that Istio needs for tracing"""
 
     headers_to_propagate = [
-    'x-request-id',
-    'x-b3-traceid',
-    'x-b3-spanid',
-    'x-b3-parentspanid',
-    'x-b3-sampled',
-    'x-b3-flags',
+        "x-request-id",
+        "x-b3-traceid",
+        "x-b3-spanid",
+        "x-b3-parentspanid",
+        "x-b3-sampled",
+        "x-b3-flags",
     ]
 
     headers = {}
@@ -68,7 +72,7 @@ async def io_task():
 @app.get("/cpu_task")
 async def cpu_task():
     for i in range(1000):
-        n = i*i*i
+        n = i * i * i
     logging.debug("cpu task")
     return "CPU bound task finish!"
 
