@@ -9,14 +9,21 @@ This repo is based on https://github.com/blueswen/fastapi-jaeger, which integrat
 istioctl install --set profile=demo -y
 ```
 
-2. Deploy Jaeger etc. to the namespace `istio-system` by running:
-```sh
-kubectl apply -f k8s/addons
-```
-
-3. Deploy local registry by:
+2. Deploy local registry by:
 ```sh
 docker run -d -p 5000:5000 --restart always --name registry registry:2
+```
+
+3. Create a secret:
+```sh
+cp .env.monitoring.example .env.monitoring
+vim .env.monitoring # edit this file as you like
+kubectl -n istio-system create secret generic monitoring-secret --from-env-file .env.monitoring
+```
+
+4. Deploy Jaeger etc. to the namespace `istio-system` by running:
+```sh
+kubectl apply -f k8s/addons
 ```
 
 ## Setup

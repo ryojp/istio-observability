@@ -36,6 +36,18 @@ spec:
   gateways:
     - demo-gateway
   http:
+    - match:
+        - uri:
+            exact: "/grafana"
+        - uri:
+            prefix: "/grafana/"
+      rewrite:
+        uri: "/"
+      route:
+        - destination:
+            host: grafana.istio-system.svc.cluster.local
+            port:
+              number: 3000
     - route:
         - destination:
             host: app-a.demo.svc.cluster.local
