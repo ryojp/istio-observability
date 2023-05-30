@@ -45,12 +45,32 @@ kubectl apply -f k8s
 
 4. Issue requests to the FastAPI app:
 ```sh
-curl localhost/chain
+curl http://localhost/chain
 ```
 
-5. Open Jaeger dashboard:
+
+## Observability
+
+### Grafana
+
+1. Make sure to create `monitoring-secret` in namespace `istio-system` by following the prerequisites above.
+
+2. Visit Grafana dashboard at http://localhost/grafana
+
+### Kiali
+1. Create a token:
+```sh
+kubectl -n istio-system create token kiali
+```
+
+2. Visit Kiali dashboard at http://localhost/kiali
+
+### Jaeger/Prometheus
+
+1. Open dashboard using port-forwarding:
 ```sh
 istioctl dashboard jaeger
+istioctl dashboard prometheus
 ```
 
 ## Cleanup

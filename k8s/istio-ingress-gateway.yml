@@ -48,6 +48,18 @@ spec:
             host: grafana.istio-system.svc.cluster.local
             port:
               number: 3000
+    - match:
+        - uri:
+            exact: "/kiali"
+        - uri:
+            prefix: "/kiali/"
+      # rewrite:    # not needed
+      #   uri: "/"  # reference: https://github.com/kiali/kiali/issues/1059#issuecomment-491540360
+      route:
+        - destination:
+            host: kiali.istio-system.svc.cluster.local
+            port:
+              number: 20001
     - route:
         - destination:
             host: app-a.demo.svc.cluster.local
