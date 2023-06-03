@@ -1,6 +1,18 @@
 # Istio Observability
 
+This repo showcases Istio's observability addons that you can benefit without changes in application codes.
+
+Istio provides metrics such as 90%tile request duration between services, rate of successful requests, etc.
+Those metrics can be collected and aggregated using [Prometheus](https://istio.io/latest/docs/ops/integrations/prometheus/), and displayed beautifully with [Grafana](https://istio.io/latest/docs/ops/integrations/grafana/).
+
+[Kiali](https://istio.io/latest/docs/ops/integrations/kiali/) addon provides an overview of the entire application, and [Jaeger](https://istio.io/latest/docs/tasks/observability/distributed-tracing/jaeger/) allows us to trace individual request chains that span multiple services in your Kubernetes cluster.
+
+(Please note that distributed tracing through Jaeger is only possible if you slightly modify your application to [propagate certain HTTP headers](https://istio.io/latest/docs/tasks/observability/distributed-tracing/overview/#trace-context-propagation) when issueing requests to other microservices.)
+
+Please visit https://istio.io/latest/docs/concepts/observability/ for more details on those addons.
+
 This repo is based on https://github.com/blueswen/fastapi-jaeger, which integrates Jaeger through OpenTelemetry into FastAPI using Docker Compose.
+In contrast, our app does not require manual instrumentation because Istio's sidecar proxies do that for us.
 
 
 ## Dashboards
