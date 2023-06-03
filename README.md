@@ -2,6 +2,16 @@
 
 This repo is based on https://github.com/blueswen/fastapi-jaeger, which integrates Jaeger through OpenTelemetry into FastAPI using Docker Compose.
 
+
+## Dashboards
+
+![Kiali](./assets/kiali-versioned-app-graph.png)
+
+![Jaeger](./assets/jaeger-tracing.png)
+
+![Grafana](./assets/grafana.png)
+
+
 ## Prerequisites
 
 1. Deploy `Istio` by installing `istioctl` and running:
