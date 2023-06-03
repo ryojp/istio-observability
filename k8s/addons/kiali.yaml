@@ -37,7 +37,7 @@ data:
       openid: {}
       openshift:
         client_id_prefix: kiali
-      strategy: anonymous
+      strategy: token
     deployment:
       accessible_namespaces:
       - '**'

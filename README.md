@@ -9,22 +9,28 @@ This repo is based on https://github.com/blueswen/fastapi-jaeger, which integrat
 istioctl install --set profile=demo -y
 ```
 
-2. Deploy Jaeger etc. to the namespace `istio-system` by running:
-```sh
-kubectl apply -f k8s/addons
-```
-
-3. Deploy local registry by:
+2. Deploy local registry by:
 ```sh
 docker run -d -p 5000:5000 --restart always --name registry registry:2
+```
+
+3. Create a secret:
+```sh
+cp .env.monitoring.example .env.monitoring
+vim .env.monitoring # edit this file as you like
+kubectl -n istio-system create secret generic monitoring-secret --from-env-file .env.monitoring
+```
+
+4. Deploy Jaeger etc. to the namespace `istio-system` by running:
+```sh
+kubectl apply -f k8s/addons
 ```
 
 ## Setup
 
 1. Build and push `fastapi_app` image to `localhost:5000`:
 ```sh
-docker build -t localhost:5000/fastapi_app fastapi_app/ &&\
-docker push localhost:5000/fastapi_app
+docker build --push -t localhost:5000/fastapi_app fastapi_app/
 ```
 
 2. Create a namespace `demo` with `istio-injection` label:
@@ -39,12 +45,37 @@ kubectl apply -f k8s
 
 4. Issue requests to the FastAPI app:
 ```sh
-curl localhost/chain
+curl http://localhost/chain
 ```
 
-5. Open Jaeger dashboard:
+
+## Observability
+
+### Grafana
+
+1. Make sure to create `monitoring-secret` in namespace `istio-system` by following the prerequisites above.
+
+2. Visit Grafana dashboard at http://localhost/grafana
+
+### Kiali
+1. Create a token:
+```sh
+kubectl -n istio-system create token kiali
+```
+
+2. Visit Kiali dashboard at http://localhost/kiali
+
+### Jaeger/Prometheus
+
+1. Open dashboard using port-forwarding:
 ```sh
 istioctl dashboard jaeger
+istioctl dashboard prometheus
+```
+
+## Cleanup
+```sh
+kubectl delete ns demo
 ```
 
 
@@ -83,3 +114,25 @@ istio-ingressgateway   NodePort   10.152.183.198   <none>        15021:32569/TCP
 ```
 
 In this case, `localhost:30419` is what you want. Try `curl localhost:30419` to verify it.
+
+
+### Istio does not seem to handle requests...
+In case you get errors like `upstream connect error or disconnect/reset before headers. reset reason: connection termination` even though you are sure that the upstream service is up and running, restart the Istio:
+```sh
+kubectl -n istio-system rollout restart deploy
+```
+
+### Deleting a namespace hangs...
+
+I found a solution on [StackOverflow](https://stackoverflow.com/a/53661717).
+
+Replace the `NAMESPACE` below and run:
+```sh
+export NAMESPACE=your-rogue-namespace
+export PROXYPORT=8011
+kubectl proxy --port=$PROXYPORT &
+kubectl get namespace $NAMESPACE -o json |jq '.spec = {"finalizers":[]}' >temp.json
+curl -k -H "Content-Type: application/json" -X PUT --data-binary @temp.json 127.0.0.1:$PROXYPORT/api/v1/namespaces/$NAMESPACE/finalize
+rm temp.json
+kill $(ps ax | grep "proxy --port=$PROXYPORT" | grep -v grep | cut -f1 -d' ')
+```

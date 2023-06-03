@@ -52,7 +52,21 @@ spec:
               cpu: 10m
       volumes:
         - name: data
-          emptyDir: {}
+          persistentVolumeClaim:
+            claimName: jaeger-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  namespace: istio-system
+  name: jaeger-pvc
+spec:
+  # storageClassName: local-path
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
 ---
 apiVersion: v1
 kind: Service
