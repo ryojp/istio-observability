@@ -20,6 +20,10 @@ TARGET_TWO_ORIGIN = os.environ.get(
 app = FastAPI()
 
 
+logging.basicConfig(level=logging.INFO)
+log = logging.getLogger(__name__)
+
+
 def getForwardHeaders(request: Request) -> dict[str, str]:
     """Returns a header dict that Istio needs for tracing"""
 
@@ -45,27 +49,27 @@ def getForwardHeaders(request: Request) -> dict[str, str]:
 # logger middleware
 @app.middleware("http")
 async def logger(req: Request, call_next):
-    logging.info(f"{req.method} {req.url} {req.headers}")
+    log.info(f"{req.method} {req.url} {req.headers}")
     res = await call_next(req)
     return res
 
 
 @app.get("/")
 async def read_root():
-    logging.debug("Hello World")
+    log.debug("Hello World")
     return {"Hello": "World"}
 
 
 @app.get("/items/{item_id}")
 async def read_item(item_id: int, q: Optional[str] = None):
-    logging.debug("items")
+    log.debug("items")
     return {"item_id": item_id, "q": q}
 
 
 @app.get("/io_task")
 async def io_task():
     time.sleep(0.1)
-    logging.debug("io task")
+    log.debug("io task")
     return "IO bound task finish!"
 
 
@@ -73,34 +77,34 @@ async def io_task():
 async def cpu_task():
     for i in range(1000):
         n = i * i * i
-    logging.debug("cpu task")
+    log.debug("cpu task")
     return "CPU bound task finish!"
 
 
 @app.get("/random_status")
 async def random_status(res: Response):
     res.status_code = random.choice([200, 200, 300, 400, 500])
-    logging.debug("random status")
+    log.debug("random status")
     return {"path": "/random_status"}
 
 
 @app.get("/random_sleep")
 async def random_sleep():
-    logging.debug("random sleep")
+    log.debug("random sleep")
     time.sleep(random.randint(0, 5))
     return {"path": "/random_sleep"}
 
 
 @app.get("/sleep")
 async def random_sleep(t: Optional[float] = 1.0):
-    logging.debug(f"sleeping {t} sec...")
+    log.debug(f"sleeping {t} sec...")
     time.sleep(t)
     return {"path": "/sleep", "t": t}
 
 
 @app.get("/error_test")
 async def random_sleep():
-    logging.debug("got error!!!!")
+    log.debug("got error!!!!")
     raise ValueError("value error")
 
 
@@ -114,10 +118,10 @@ async def chain(req: Request):
         await client.get(f"{TARGET_ONE_ORIGIN}/io_task", headers=headers)
     async with httpx.AsyncClient() as client:
         await client.get(f"{TARGET_TWO_ORIGIN}/cpu_task", headers=headers)
-    logging.info("Chain Finished")
+    log.info("Chain Finished")
     return {"path": "/chain"}
 
 
 if __name__ == "__main__":
-    logging.info(f"Running on port {PORT}")
+    log.info(f"Running on port {PORT}")
     uvicorn.run(app, host="0.0.0.0", port=PORT)
